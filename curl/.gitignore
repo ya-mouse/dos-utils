@@ -1,0 +1,4 @@
+*.o
+lib/libcurl.lib
+lib/wlib.arg
+src/curl.exe

@@ -1,0 +1,4 @@
+bin/tcpinfo.exe
+bin/tcpinfo.o
+lib/wattcpwf.lib
+src/watcom/flat

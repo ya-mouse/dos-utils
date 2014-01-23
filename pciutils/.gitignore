@@ -1,0 +1,15 @@
+*.a
+*.o
+*.so
+*.[0-9]
+nul.err
+include
+lspci
+lspci.exe
+setpci
+example
+update-pciids
+pci.ids.gz
+pci.idz
+lib/wlib.arg
+lib/pci_f.lib
