@@ -2,4 +2,5 @@ linux
 watcomenv
 dos32a.exe
 dos32a.tmp
+dos32a-*-bin.zip
 open-watcom-c-linux-1.9
