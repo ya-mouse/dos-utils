@@ -1,13 +1,14 @@
 all: watcomenv
 
 linux: open-watcom-c-linux-1.9 dos32a.exe
-	rm -rf linux; unzip open-watcom-c-linux-1.9 -d $@
-	cd linux && \
-	cp -f $(CURDIR)/dos32a.exe binl/dos32a.exe && \
-	rm -rf binnt binp binw docs h/nt h/os2* h/win lib286/os2 lib286/win \
-	       lib386/linux lib386/netware lib386/nt lib386/os2 lib386/rdos lib386/win \
-	       nlm rdos samples src setup.inf watcom.ico && \
-	file -i binl/* | fgrep application/x-executable | sed 's,:.*,,' | xargs chmod +x
+	rm -rf linux; unzip open-watcom-c-linux-1.9 \
+	    -x 'binnt/*' 'binp/*' 'binw/*' 'docs/*' 'h/nt/*' \
+	       'h/os2*' 'h/win/*' 'lib286/os2/*' 'lib286/win/*' \
+	       'lib386/linux/*' 'lib386/netware/*' 'lib386/nt/*' \
+	       'lib386/os2/*' 'lib386/rdos/*' 'lib386/win/*' 'nlm/*' \
+	       'rdos/*' 'samples/*' 'src/*' setup.inf watcom.ico -d $@ && \
+	cp -f $(CURDIR)/dos32a.exe linux/binl/dos32a.exe && \
+	file -i linux/binl/* | fgrep application/x-executable | sed 's,:.*,,' | xargs chmod +x
 
 watcomenv: linux
 	echo "#!/bin/sh" > $@
