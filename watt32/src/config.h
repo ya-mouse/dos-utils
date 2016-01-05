@@ -107,6 +107,8 @@
   #define USE_BSD_FATAL
   #define USE_BUFFERED_IO
   #define OPT_DEFINED
+  #define USE_RS232_DBG
+  #define USE_DEBUG
 #endif
 
 /*
@@ -128,6 +130,7 @@
   #define USE_MULTICAST
   #define USE_PPPOE
   #define OPT_DEFINED
+  #define USE_FAST_PKT
 #endif
 
 /*

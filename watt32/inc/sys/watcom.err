@@ -11,7 +11,7 @@
 #error This file is only for use by "__WATCOMC__"
 #endif
 
-#define ERRNO_VENDOR_VERSION  "12.40"
+#define ERRNO_VENDOR_VERSION  "12.90"
 
 #define EWOULDBLOCK       42
 #define EDOM              13

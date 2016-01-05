@@ -1980,6 +1980,11 @@ static BOOL pkt_api_entry (IREGS *reg, unsigned line)
   if (reg->r_flags & CARRY_BIT)
   {
     _pkt_errno = hiBYTE (reg->r_dx);  /* DH has error-code */
+    /* Special hack for "undipd" packet driver */
+    if (_pkt_errno == 8) {
+      _pkt_errno = 0;
+      return (TRUE);
+    }
     return (FALSE);
   }
   return (TRUE);

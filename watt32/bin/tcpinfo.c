@@ -302,8 +302,10 @@ int main (int argc, char **argv)
   survive_dhcp  = 1;  /* ditto for DHCP/RARP */
   survive_rarp  = 1;
 
-  if (debug_on)
+  if (debug_on) {
      dbug_init();
+     //trace2com_init(1, 115200UL);
+  }
 
   watt_sock_init (0, 0);
 

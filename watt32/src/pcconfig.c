@@ -135,6 +135,7 @@ static void set_ethip (const char *value)
   const char *trailer = _inet_atoeth (value, &eth);
   DWORD       ip4;
 
+  printf("trailer: [%s][%s]\r\n", value, trailer);
   if (!trailer)
      return;
 
@@ -149,6 +150,7 @@ static void set_ethip (const char *value)
   {
 #if defined(USE_IPV6)
     const void *ip6 = _inet6_addr (trailer);
+    printf("ncache_insert: [%p]\r\n", ip6);
     if (ip6)
        icmp6_ncache_insert_fix (ip6, &eth);
 #endif

@@ -184,6 +184,7 @@ static void set_my_ip6 (const char *value)
      _dhcp6_on = 1;
   else if (!inet_pton(AF_INET6, value, (void*)&in6addr_my_ip))
      printf (_LANG("\"IP6.MY_IP\": Invalid IPv6 address \"%s\"\n"), value);
+  printf("SET my6ip to %s\r\n", _inet6_ntoa(&in6addr_my_ip));
 }
 
 static void ip6_config (const char *name, const char *value)
@@ -208,7 +209,7 @@ int _ip6_init (void)
 
 /*
  * Sets default (preferred link-local) IPv6 address to
- * FE80::201:80FF:FE <last 3 bytes of MAC-address>
+ * FE80::2001:80FF:FE <last 3 bytes of MAC-address>
  */
 static void set_default_ip (void)
 {
@@ -225,6 +226,7 @@ static void set_default_ip (void)
   a[13] = _eth_real_addr[3];
   a[14] = _eth_real_addr[4];
   a[15] = _eth_real_addr[5];
+  printf("SET my6ip to default %s\r\n", _inet6_ntoa(&in6addr_my_ip));
 }
 
 /*
@@ -233,6 +235,7 @@ static void set_default_ip (void)
  */
 int _ip6_pkt_init (void)
 {
+  printf("PKT init %s\r\n", _inet6_ntoa(&in6addr_my_ip));
   if (!memcmp(&in6addr_my_ip,&in6addr_any,sizeof(in6addr_my_ip)))
      set_default_ip();
 

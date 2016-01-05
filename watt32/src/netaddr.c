@@ -202,7 +202,7 @@ const char *_inet_atoeth (const char *src, eth_address *p_eth)
 {
   BYTE *eth = (BYTE*)p_eth;
 
-#if (DOSX)
+#if 0 //(DOSX)
   int tmp [sizeof(eth_address)];
 
   if (!sscanf(src,"%02x:%02x:%02x:%02x:%02x:%02x",

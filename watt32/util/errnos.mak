@@ -18,7 +18,7 @@ tcc_err.exe: errnos.c
 	tcc -I..\inc -ml -etcc_err.exe errnos.c
 
 wc_err.exe: errnos.c
-	wcl -I..\inc -ml -zq -fe=wc_err.exe -fr=nul errnos.c
+	wcl -I../inc -ml -zq -fe=wc_err.exe -fr=nul errnos.c
 
 hc_err.exe: errnos.c
 	hc386 -I..\inc -Hldopt=-nomap -o hc_err.exe errnos.c

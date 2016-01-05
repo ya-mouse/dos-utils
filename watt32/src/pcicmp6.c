@@ -101,7 +101,7 @@ static WORD route_lifetime;
 static void icmp6_print (int dbg_lvl, const char *msg, const void *src);
 static int  icmp6_send  (in6_Header *ip, ICMP6_PKT *icmp, UINT len);
 static void router_advert (const union ICMP6_PKT *icmp, unsigned len);
-static int  neighbor_advert (const eth_address *eth);
+static int  neighbor_advert (const in6_Header *ip_in);
 static void echo_reply (const in6_Header *ip, const union ICMP6_PKT *icmp);
 
 /*
@@ -217,8 +217,8 @@ int icmp6_neigh_solic (const void *addr, eth_address *eth)
   *options++ = 1;   /* multiple of 8 bytes */
   memcpy (options, _eth_addr, sizeof(_eth_addr));
   options += sizeof(_eth_addr);
-  *options++ = 0;   /* End option */
-  *options++ = 0;
+//  *options++ = 0;   /* End option */
+//  *options++ = 0;
 
   icmp6_send (ip, (ICMP6_PKT*)icmp, options - (BYTE*)icmp);
 
@@ -249,6 +249,7 @@ void icmp6_handler (const in6_Header *ip)
   icmp   = (const union ICMP6_PKT*) pkt->data;
   len    = pkt->len;
   for_me = !memcmp (ip->destination, &in6addr_my_ip, sizeof(ip->destination));
+  printf(">> HND: for_me=[%d][%s]<>[%s][%s]\n", for_me, _inet6_ntoa(&in6addr_my_ip), _inet6_ntoa(ip->destination), _inet6_ntoa(ip->source));
 
   if (len < sizeof(icmp->unused))
   {
@@ -318,8 +319,12 @@ void icmp6_handler (const in6_Header *ip)
          break;
 
     case ND_NEIGHBOR_SOLICIT:
-         if (IN6_ARE_ADDR_EQUAL(icmp->nd_solic.target, &in6addr_my_ip))
-            neighbor_advert ((const eth_address*)MAC_SRC(ip));
+         dbug_printf("--> ND_NEIGHBOR_SOLICIT:");
+         if (IN6_ARE_ADDR_EQUAL(icmp->nd_solic.target, &in6addr_my_ip)) {
+            dbug_printf(" neighbor_advert");
+            neighbor_advert (ip);
+         }
+         dbug_printf("\n");
          break;
 
     case ND_NEIGHBOR_ADVERT:
@@ -483,13 +488,14 @@ static void router_advert (const union ICMP6_PKT *icmp, unsigned len)
                     len - sizeof(icmp->radvert));
 }
 
-static int neighbor_advert (const eth_address *eth)
+static int neighbor_advert (const in6_Header *ip_in)
 {
   struct _pkt         *pkt;
   struct in6_Header   *ip;
   struct ICMP6_nd_adv *icmp;
+  BYTE *options;
 
-  pkt  = (struct _pkt*) _eth_formatpacket (eth, IP6_TYPE);
+  pkt  = (struct _pkt*) _eth_formatpacket ((const eth_address*)MAC_SRC(ip_in), IP6_TYPE);
   ip   = &pkt->in;
   icmp = &pkt->icmp.nd_adv;
   icmp->type      = ND_NEIGHBOR_ADVERT;
@@ -501,10 +507,20 @@ static int neighbor_advert (const eth_address *eth)
   icmp->solicited = 1;
   icmp->override  = 1;
 
+  printf("src=%s dst=%s\r\n", _inet6_ntoa(ip_in->source), _inet6_ntoa(ip_in->destination));
+
   memcpy (&icmp->target, &in6addr_my_ip, sizeof(icmp->target));
+  memcpy (&ip->destination, ip_in->source, sizeof(ip->source));
   memcpy (&ip->source, &in6addr_my_ip, sizeof(ip->source));
-  memcpy (&ip->destination, &in6addr_allr_mc, sizeof(ip->destination));
-  return icmp6_send (ip, (ICMP6_PKT*)icmp, sizeof(*icmp));
+
+  /* Insert "src-mac address" option
+   */
+  options = (BYTE*) (icmp + 1);
+  *options++ = ND_OPT_TARGET_LINKADDR;
+  *options++ = 1;   /* multiple of 8 bytes */
+  memcpy (options, _eth_real_addr, sizeof(_eth_real_addr));
+  options += sizeof(_eth_real_addr);
+  return icmp6_send (ip, (ICMP6_PKT*)icmp, options - (BYTE *)icmp);
 }
 
 static void echo_reply (const in6_Header      *orig_ip,
