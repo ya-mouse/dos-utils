@@ -74,6 +74,7 @@
 #define HAVE_SYS_STAT_H        1
 #define HAVE_SYS_TYPES_H       1
 #define HAVE_TIME_H            1
+#define HAVE_UNISTD_H          1
 
 #define NEED_MALLOC_H          1
 
@@ -148,6 +149,7 @@
 #define CURL_DISABLE_LDAP        1
 #define CURL_DISABLE_TELNET      1
 #define CURL_DISABLE_DICT        1
+#undef  CURL_DISABLE_FILE
 #define CURL_DISABLE_TFTP        1
 #define CURL_DISABLE_IMAP        1
 #define CURL_DISABLE_POP3        1
