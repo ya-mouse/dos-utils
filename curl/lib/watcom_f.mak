@@ -14,7 +14,7 @@ CFLAGS  += -I../include -I$(WATCOM)/inc -I$(ZLIB) -I.
 LIB      = $(WATCOM)/lib/wattcpwf.lib $(ZLIB)/zlib_f.lib
 
 CFLAGS  += -DNDEBUG -DBUILDING_LIBCURL -DHAVE_CONFIG_H -DMSDOS
-CFLAGS  += -DHAVE_LIBZ -DHAVE_ZLIB_H -DUSE_IPV6 -D_GETOPT_H
+CFLAGS  += -DHAVE_LIBZ -DHAVE_ZLIB_H -DUSE_IPV6 -D_GETOPT_H -D__WATCOM_LFN__
 
 !include Makefile.inc
 

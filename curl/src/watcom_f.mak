@@ -13,7 +13,7 @@ CFLAGS   = -zq -mf -3r -fp3 -s -bt=dos -oilrtfm -fr=nul -wx -fpi
 CFLAGS  += -I../include -I$(WATCOM)/inc -I$(ZLIB) -I../lib
 LIB      = ../lib/libcurl.lib $(WATCOM)/lib/wattcpwf.lib $(ZLIB)/zlib_f.lib
 
-CFLAGS  += -DNDEBUG -DBUILDING_LIBCURL -DHAVE_CONFIG_H -DMSDOS
+CFLAGS  += -DNDEBUG -DBUILDING_LIBCURL -DHAVE_CONFIG_H -DMSDOS -D__WATCOM_LFN__
 CFLAGS  += -DHAVE_LIBZ -DHAVE_ZLIB_H -DUSE_IPV6 -DENABLE_IPV6 -D_GETOPT_H
 
 top_srcdir = ..

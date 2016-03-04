@@ -129,7 +129,7 @@
 #define CURL_DISABLE_TELNET      1
 #define CURL_DISABLE_DICT        1
 #define CURL_DISABLE_TFTP        1
-#define CURL_DISABLE_FILE        1
+#undef  CURL_DISABLE_FILE
 #define CURL_DISABLE_IMAP        1
 #define CURL_DISABLE_POP3        1
 #define CURL_DISABLE_SMTP        1
