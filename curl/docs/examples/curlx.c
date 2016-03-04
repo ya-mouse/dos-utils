@@ -9,7 +9,10 @@
   certificate presented during ssl session establishment.
 
 */
-
+/* <DESC>
+ * demonstrates use of SSL context callback, requires OpenSSL
+ * </DESC>
+ */
 
 /*
  * Copyright (c) 2003 The OpenEvidence Project.  All rights reserved.
@@ -33,7 +36,7 @@
  *    "This product includes software developed by the Openevidence Project
  *    for use in the OpenEvidence Toolkit. (http://www.openevidence.org/)"
  *    This product includes software developed by the OpenSSL Project
- *    for use in the OpenSSL Toolkit (http://www.openssl.org/)"
+ *    for use in the OpenSSL Toolkit (https://www.openssl.org/)"
  *    This product includes cryptographic software written by Eric Young
  *    (eay@cryptsoft.com).  This product includes software written by Tim
  *    Hudson (tjh@cryptsoft.com)."
@@ -52,7 +55,7 @@
  *    "This product includes software developed by the OpenEvidence Project
  *    for use in the OpenEvidence Toolkit (http://www.openevidence.org/)
  *    This product includes software developed by the OpenSSL Project
- *    for use in the OpenSSL Toolkit (http://www.openssl.org/)"
+ *    for use in the OpenSSL Toolkit (https://www.openssl.org/)"
  *    This product includes cryptographic software written by Eric Young
  *    (eay@cryptsoft.com).  This product includes software written by Tim
  *    Hudson (tjh@cryptsoft.com)."
@@ -72,7 +75,7 @@
  * ====================================================================
  *
  * This product includes software developed by the OpenSSL Project
- * for use in the OpenSSL Toolkit (http://www.openssl.org/)
+ * for use in the OpenSSL Toolkit (https://www.openssl.org/)
  * This product includes cryptographic software written by Eric Young
  * (eay@cryptsoft.com).  This product includes software written by Tim
  * Hudson (tjh@cryptsoft.com).
@@ -239,8 +242,7 @@ static CURLcode sslctxfun(CURL * curl, void * sslctx, void * parm) {
   SSL_CTX_set_cipher_list(ctx,"RC4-MD5");
   SSL_CTX_set_mode(ctx, SSL_MODE_AUTO_RETRY);
 
-  X509_STORE_add_cert(ctx->cert_store,sk_X509_value(p->ca,
-                                                    sk_X509_num(p->ca)-1));
+  X509_STORE_add_cert(SSL_CTX_get_cert_store(ctx), sk_X509_value(p->ca, sk_X509_num(p->ca)-1));
 
   SSL_CTX_set_verify_depth(ctx,2);
 
@@ -491,7 +493,7 @@ int main(int argc, char **argv) {
         BIO_printf(p.errorbio,"the response has a correct mimetype : %s\n",
                    response);
       else
-        BIO_printf(p.errorbio,"the reponse doesn\'t has an acceptable "
+        BIO_printf(p.errorbio,"the response doesn\'t have an acceptable "
                    "mime type, it is %s instead of %s\n",
                    response,mimetypeaccept);
   }

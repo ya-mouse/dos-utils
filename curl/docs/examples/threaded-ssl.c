@@ -1,19 +1,37 @@
-/*****************************************************************************
+/***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
  *                             / __| | | | |_) | |
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
- * A multi-threaded example that uses pthreads and fetches 4 remote files at
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.haxx.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
+/* <DESC>
+ * Show the required mutex callback setups for GnuTLS and OpenSSL when using
+ * libcurl multi-threaded.
+ * </DESC>
+ */
+/* A multi-threaded example that uses pthreads and fetches 4 remote files at
  * once over HTTPS. The lock callbacks and stuff assume OpenSSL or GnuTLS
  * (libgcrypt) so far.
  *
  * OpenSSL docs for this:
- *   http://www.openssl.org/docs/crypto/threads.html
+ *   https://www.openssl.org/docs/crypto/threads.html
  * gcrypt docs for this:
- *   http://gnupg.org/documentation/manuals/gcrypt/Multi_002dThreading.html
+ *   https://gnupg.org/documentation/manuals/gcrypt/Multi_002dThreading.html
  */
 
 #define USE_OPENSSL /* or USE_GNUTLS accordingly */

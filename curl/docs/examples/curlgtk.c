@@ -5,16 +5,17 @@
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
+ *  Copyright (c) 2000 David Odin (aka DindinX) for MandrakeSoft
  */
-/* Copyright (c) 2000 David Odin (aka DindinX) for MandrakeSoft */
-/* an attempt to use the curl library in concert with a gtk-threaded application */
+/* <DESC>
+ * use the libcurl in a gtk-threaded application
+ * </DESC>
+ */
 
 #include <stdio.h>
 #include <gtk/gtk.h>
 
 #include <curl/curl.h>
-#include <curl/types.h> /* new for v7 */
-#include <curl/easy.h> /* new for v7 */
 
 GtkWidget *Bar;
 

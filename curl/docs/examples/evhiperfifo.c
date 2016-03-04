@@ -1,12 +1,29 @@
-/*****************************************************************************
+/***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
  *                             / __| | | | |_) | |
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
+ * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
- * Example application source code using the multi socket interface to
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.haxx.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
+/* <DESC>
+ * multi socket interface together with libev
+ * </DESC>
+ */
+/* Example application source code using the multi socket interface to
  * download many files at once.
  *
  * This example features the same basic functionality as hiperfifo.c does,
@@ -120,7 +137,6 @@ static void mcode_or_die(const char *where, CURLMcode code)
     const char *s;
     switch ( code )
     {
-    case CURLM_CALL_MULTI_PERFORM: s="CURLM_CALL_MULTI_PERFORM"; break;
     case CURLM_BAD_HANDLE:         s="CURLM_BAD_HANDLE";         break;
     case CURLM_BAD_EASY_HANDLE:    s="CURLM_BAD_EASY_HANDLE";    break;
     case CURLM_OUT_OF_MEMORY:      s="CURLM_OUT_OF_MEMORY";      break;
@@ -323,7 +339,7 @@ static void new_conn(char *url, GlobalInfo *g )
   conn->url = strdup(url);
   curl_easy_setopt(conn->easy, CURLOPT_URL, conn->url);
   curl_easy_setopt(conn->easy, CURLOPT_WRITEFUNCTION, write_cb);
-  curl_easy_setopt(conn->easy, CURLOPT_WRITEDATA, &conn);
+  curl_easy_setopt(conn->easy, CURLOPT_WRITEDATA, conn);
   curl_easy_setopt(conn->easy, CURLOPT_VERBOSE, 1L);
   curl_easy_setopt(conn->easy, CURLOPT_ERRORBUFFER, conn->error);
   curl_easy_setopt(conn->easy, CURLOPT_PRIVATE, conn);
@@ -367,7 +383,7 @@ static int init_fifo (GlobalInfo *g)
 {
   struct stat st;
   static const char *fifo = "hiper.fifo";
-  int sockfd;
+  curl_socket_t sockfd;
 
   fprintf(MSG_OUT, "Creating named pipe \"%s\"\n", fifo);
   if ( lstat (fifo, &st) == 0 )

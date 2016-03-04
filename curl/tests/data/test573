@@ -1,7 +1,9 @@
 <testcase>
 <info>
 <keywords>
-FILE
+HTTP
+multi
+flaky
 </keywords>
 </info>
 #

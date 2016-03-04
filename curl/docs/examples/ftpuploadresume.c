@@ -1,18 +1,27 @@
-/*****************************************************************************
+/***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
  *                             / __| | | | |_) | |
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
+ * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
- * Upload to FTP, resuming failed transfers
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.haxx.se/docs/copyright.html.
  *
- * Compile for MinGW like this:
- *  gcc -Wall -pedantic -std=c99 ftpuploadwithresume.c -o ftpuploadresume.exe
- *  -lcurl -lmsvcr70
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
  *
- * Written by Philip Bock
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
+/* <DESC>
+ * Upload to FTP, resuming failed transfers.
+ * </DESC>
  */
 
 #include <stdlib.h>
@@ -26,7 +35,7 @@
 
 /* The MinGW headers are missing a few Win32 function definitions,
    you shouldn't need this if you use VC++ */
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && !defined(__MINGW64__)
 int __cdecl _snscanf(const char * input, size_t length, const char * format, ...);
 #endif
 

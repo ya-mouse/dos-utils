@@ -1,14 +1,28 @@
-/*****************************************************************************
+/***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
  *                             / __| | | | |_) | |
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
+ * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
- * This is a very simple example using the multi interface.
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.haxx.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
+/* <DESC>
+ * multi interface code doing two parallel HTTP transfers
+ * </DESC>
  */
-
 #include <stdio.h>
 #include <string.h>
 
@@ -22,7 +36,7 @@
 /*
  * Simply download two HTTP files!
  */
-int main(int argc, char **argv)
+int main(void)
 {
   CURL *http_handle;
   CURL *http_handle2;
@@ -49,9 +63,10 @@ int main(int argc, char **argv)
   /* we start some action by calling perform right away */
   curl_multi_perform(multi_handle, &still_running);
 
-  while(still_running) {
+  do {
     struct timeval timeout;
     int rc; /* select() return code */
+    CURLMcode mc; /* curl_multi_fdset() return code */
 
     fd_set fdread;
     fd_set fdwrite;
@@ -78,15 +93,35 @@ int main(int argc, char **argv)
     }
 
     /* get file descriptors from the transfers */
-    curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
+    mc = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
 
-    /* In a real-world program you OF COURSE check the return code of the
-       function calls.  On success, the value of maxfd is guaranteed to be
-       greater or equal than -1.  We call select(maxfd + 1, ...), specially in
-       case of (maxfd == -1), we call select(0, ...), which is basically equal
-       to sleep. */
+    if(mc != CURLM_OK)
+    {
+      fprintf(stderr, "curl_multi_fdset() failed, code %d.\n", mc);
+      break;
+    }
 
-    rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+    /* On success the value of maxfd is guaranteed to be >= -1. We call
+       select(maxfd + 1, ...); specially in case of (maxfd == -1) there are
+       no fds ready yet so we call select(0, ...) --or Sleep() on Windows--
+       to sleep 100ms, which is the minimum suggested value in the
+       curl_multi_fdset() doc. */
+
+    if(maxfd == -1) {
+#ifdef _WIN32
+      Sleep(100);
+      rc = 0;
+#else
+      /* Portable sleep for platforms other than Windows. */
+      struct timeval wait = { 0, 100 * 1000 }; /* 100ms */
+      rc = select(0, NULL, NULL, NULL, &wait);
+#endif
+    }
+    else {
+      /* Note that on some platforms 'timeout' may be modified by select().
+         If you need access to the original value save a copy beforehand. */
+      rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+    }
 
     switch(rc) {
     case -1:
@@ -98,7 +133,7 @@ int main(int argc, char **argv)
       curl_multi_perform(multi_handle, &still_running);
       break;
     }
-  }
+  } while(still_running);
 
   curl_multi_cleanup(multi_handle);
 

@@ -1,12 +1,29 @@
-/*****************************************************************************
+/***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
  *                             / __| | | | |_) | |
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
+ * Copyright (C) 1998 - 2016, Daniel Stenberg, <daniel@haxx.se>, et al.
  *
- * This example code only builds as-is on Windows.
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.haxx.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
+/* <DESC>
+ * Set your system time from a remote HTTP server's Date: header.
+ * </DESC>
+ */
+/* This example code only builds as-is on Windows.
  *
  * While Unix/Linux user, you do not need this software.
  * You can achieve the same result as synctime using curl, awk and date.
@@ -79,6 +96,8 @@
 #define MAX_STRING              256
 #define MAX_STRING1             MAX_STRING+1
 
+#define SYNCTIME_UA "synctime/1.0"
+
 typedef struct
 {
   char http_proxy[MAX_STRING1];
@@ -86,12 +105,11 @@ typedef struct
   char timeserver[MAX_STRING1];
 } conf_t;
 
-const char DefaultTimeServer[4][MAX_STRING1] =
+const char DefaultTimeServer[3][MAX_STRING1] =
 {
-  "http://nist.time.gov/timezone.cgi?UTC/s/0",
-  "http://www.google.com/",
-  "http://www.worldtimeserver.com/current_time_in_UTC.aspx",
-  "http://www.worldtime.com/cgi-bin/wt.cgi"
+  "http://pool.ntp.org/",
+  "http://nist.time.gov/",
+  "http://www.google.com/"
 };
 
 const char *DayStr[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
@@ -134,7 +152,7 @@ size_t SyncTime_CURL_WriteHeader(void *ptr, size_t size, size_t nmemb,
                                          TmpStr1 & 2? */
         AutoSyncTime = 0;
       else {
-        RetVal = sscanf ((char *)(ptr), "Date: %s %d %s %d %d:%d:%d",
+        RetVal = sscanf ((char *)(ptr), "Date: %s %hu %s %hu %hu:%hu:%hu",
                          TmpStr1, &SYSTime.wDay, TmpStr2, &SYSTime.wYear,
                          &SYSTime.wHour, &SYSTime.wMinute, &SYSTime.wSecond);
 
@@ -173,9 +191,9 @@ void SyncTime_CURL_Init(CURL *curl, char *proxy_port,
   if (strlen(proxy_user_password) > 0)
     curl_easy_setopt(curl, CURLOPT_PROXYUSERPWD, proxy_user_password);
 
-  /* Trick Webserver by claiming that you are using Microsoft WinXP SP2, IE6 */
-  curl_easy_setopt(curl, CURLOPT_USERAGENT,
-                   "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
+#ifdef SYNCTIME_UA
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, SYNCTIME_UA);
+#endif
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, *SyncTime_CURL_WriteOutput);
   curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, *SyncTime_CURL_WriteHeader);
 }

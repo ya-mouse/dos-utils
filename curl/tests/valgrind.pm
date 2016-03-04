@@ -9,7 +9,7 @@
 #
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution. The terms
-# are also available at http://curl.haxx.se/docs/copyright.html.
+# are also available at https://curl.haxx.se/docs/copyright.html.
 #
 # You may opt to use, copy, modify, merge, publish, distribute and/or sell
 # copies of the Software, and permit persons to whom the Software is
@@ -36,6 +36,7 @@ sub valgrindparse {
     my @o;
 
     my $bt=0;
+    my $nssinit=0;
 
     open(VAL, "<$file");
     while(<VAL>) {
@@ -53,9 +54,14 @@ sub valgrindparse {
                         $us++;
                     } #else {print "Not our source: $func, $source, $line\n";}
                 }
+
+                # the memory leakage within NSS_InitContext is not a bug of curl
+                if($w =~ /NSS_InitContext/) {
+                    $nssinit++;
+                }
             }
             else {
-                if($us) {
+                if($us and not $nssinit) {
                     # the stack trace included source details about us
 
                     $error++;
@@ -71,6 +77,7 @@ sub valgrindparse {
                 }
                 $bt = 0; # no more backtrace
                 $us = 0;
+                $nssinit = 0;
             }
         }
         else {

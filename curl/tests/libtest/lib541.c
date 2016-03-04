@@ -1,29 +1,28 @@
-/*****************************************************************************
+/***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
  *                             / __| | | | |_) | |
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- */
-
+ * Copyright (C) 1998 - 2011, Daniel Stenberg, <daniel@haxx.se>, et al.
+ *
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.haxx.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
 #include "test.h"
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
 #endif
 
 #include "memdebug.h"
@@ -37,13 +36,13 @@ int test(char *URL)
   CURL *curl;
   CURLcode res = CURLE_OK;
   FILE *hd_src ;
-  int hd ;
+  int hd;
   struct_stat file_info;
   int error;
 
   if (!libtest_arg2) {
     fprintf(stderr, "Usage: <url> <file-to-upload>\n");
-    return -1;
+    return TEST_ERR_USAGE;
   }
 
   hd_src = fopen(libtest_arg2, "rb");
@@ -64,13 +63,13 @@ int test(char *URL)
             error, strerror(error));
     fprintf(stderr, "ERROR: cannot open file %s\n", libtest_arg2);
     fclose(hd_src);
-    return -1;
+    return TEST_ERR_MAJOR_BAD;
   }
 
   if(! file_info.st_size) {
     fprintf(stderr, "ERROR: file %s has zero size!\n", libtest_arg2);
     fclose(hd_src);
-    return -4;
+    return TEST_ERR_MAJOR_BAD;
   }
 
   if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) {
@@ -97,7 +96,7 @@ int test(char *URL)
   test_setopt(curl,CURLOPT_URL, URL);
 
   /* now specify which file to upload */
-  test_setopt(curl, CURLOPT_INFILE, hd_src);
+  test_setopt(curl, CURLOPT_READDATA, hd_src);
 
   /* Now run off and do what you've been told! */
   res = curl_easy_perform(curl);

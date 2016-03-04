@@ -1,16 +1,40 @@
-/*****************************************************************************
+/***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
  *                             / __| | | | |_) | |
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- */
-
+ * Copyright (C) 1998 - 2015, Daniel Stenberg, <daniel@haxx.se>, et al.
+ *
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.haxx.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
 #include "test.h"
 
 #ifdef HAVE_LOCALE_H
-#include <locale.h> /* for setlocale() */
+#  include <locale.h> /* for setlocale() */
+#endif
+
+#ifdef HAVE_IO_H
+#  include <io.h> /* for setmode() */
+#endif
+
+#ifdef HAVE_FCNTL_H
+#  include <fcntl.h> /* for setmode() */
+#endif
+
+#ifdef USE_NSS
+#include <nspr.h>
 #endif
 
 #ifdef CURLDEBUG
@@ -18,19 +42,34 @@
 #  include "memdebug.h"
 #endif
 
-int select_test (int num_fds, fd_set *rd, fd_set *wr, fd_set *exc,
-                 struct timeval *tv)
+int select_wrapper(int nfds, fd_set *rd, fd_set *wr, fd_set *exc,
+                   struct timeval *tv)
 {
+  if(nfds < 0) {
+    SET_SOCKERRNO(EINVAL);
+    return -1;
+  }
 #ifdef USE_WINSOCK
-  /* Winsock doesn't like no socket set in 'rd', 'wr' or 'exc'. This is
-   * case when 'num_fds <= 0. So sleep.
+  /*
+   * Winsock select() requires that at least one of the three fd_set
+   * pointers is not NULL and points to a non-empty fdset. IOW Winsock
+   * select() can not be used to sleep without a single fd_set.
    */
-  if (num_fds <= 0) {
-    Sleep(1000*tv->tv_sec + tv->tv_usec/1000);
+  if(!nfds) {
+    Sleep((1000*tv->tv_sec) + (DWORD)(((double)tv->tv_usec)/1000.0));
     return 0;
   }
 #endif
-  return select(num_fds, rd, wr, exc, tv);
+  return select(nfds, rd, wr, exc, tv);
+}
+
+void wait_ms(int ms)
+{
+  struct timeval t;
+  t.tv_sec = ms/1000;
+  ms -= (int)t.tv_sec * 1000;
+  t.tv_usec = ms * 1000;
+  select_wrapper(0, NULL, NULL , NULL, &t);
 }
 
 char *libtest_arg2=NULL;
@@ -38,25 +77,31 @@ char *libtest_arg3=NULL;
 int test_argc;
 char **test_argv;
 
+struct timeval tv_test_start; /* for test timing */
 
-int main(int argc, char **argv)
-{
-  char *URL;
+#ifdef UNITTESTS
+int unitfail; /* for unittests */
+#endif
 
 #ifdef CURLDEBUG
-  /* this sends all memory debug messages to a logfile named memdump */
-  char *env = curl_getenv("CURL_MEMDEBUG");
+static void memory_tracking_init(void)
+{
+  char *env;
+  /* if CURL_MEMDEBUG is set, this starts memory tracking message logging */
+  env = curl_getenv("CURL_MEMDEBUG");
   if(env) {
     /* use the value as file name */
-    char *s = strdup(env);
+    char fname[CURL_MT_LOGFNAME_BUFSIZE];
+    if(strlen(env) >= CURL_MT_LOGFNAME_BUFSIZE)
+      env[CURL_MT_LOGFNAME_BUFSIZE-1] = '\0';
+    strcpy(fname, env);
     curl_free(env);
-    curl_memdebug(s);
-    free(s);
-    /* this weird strdup() and stuff here is to make the curl_free() get
-       called before the memdebug() as otherwise the memdebug tracing will
-       with tracing a free() without an alloc! */
+    curl_memdebug(fname);
+    /* this weird stuff here is to make curl_free() get called
+       before curl_memdebug() as otherwise memory tracking will
+       log a free() without an alloc! */
   }
-  /* this enables the fail-on-alloc-number-N functionality */
+  /* if CURL_MEMLIMIT is set, this enables fail-on-alloc-number-N feature */
   env = curl_getenv("CURL_MEMLIMIT");
   if(env) {
     char *endptr;
@@ -65,7 +110,39 @@ int main(int argc, char **argv)
       curl_memlimit(num);
     curl_free(env);
   }
+}
+#else
+#  define memory_tracking_init() Curl_nop_stmt
 #endif
+
+/* returns a hexdump in a static memory area */
+char *hexdump(unsigned char *buffer, size_t len)
+{
+  static char dump[200*3+1];
+  char *p = dump;
+  size_t i;
+  if(len > 200)
+    return NULL;
+  for(i=0; i<len; i++, p += 3)
+    snprintf(p, 4, "%02x ", buffer[i]);
+  return dump;
+}
+
+
+int main(int argc, char **argv)
+{
+  char *URL;
+  int result;
+
+#ifdef O_BINARY
+#  ifdef __HIGHC__
+  _setmode(stdout, O_BINARY);
+#  else
+  setmode(fileno(stdout), O_BINARY);
+#  endif
+#endif
+
+  memory_tracking_init();
 
   /*
    * Setup proper locale from environment. This is needed to enable locale-
@@ -94,5 +171,13 @@ int main(int argc, char **argv)
 
   fprintf(stderr, "URL: %s\n", URL);
 
-  return test(URL);
+  result = test(URL);
+
+#ifdef USE_NSS
+  if(PR_Initialized())
+    /* prevent valgrind from reporting possibly lost memory (fd cache, ...) */
+    PR_Cleanup();
+#endif
+
+  return result;
 }

@@ -1,16 +1,25 @@
-/*****************************************************************************
+/***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
  *                             / __| | | | |_) | |
  *                            | (__| |_| |  _ <| |___
  *                             \___|\___/|_| \_\_____|
  *
- */
-
+ * Copyright (C) 1998 - 2013, Daniel Stenberg, <daniel@haxx.se>, et al.
+ *
+ * This software is licensed as described in the file COPYING, which
+ * you should have received as part of this distribution. The terms
+ * are also available at https://curl.haxx.se/docs/copyright.html.
+ *
+ * You may opt to use, copy, modify, merge, publish, distribute and/or sell
+ * copies of the Software, and permit persons to whom the Software is
+ * furnished to do so, under the terms of the COPYING file.
+ *
+ * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+ * KIND, either express or implied.
+ *
+ ***************************************************************************/
 #include "test.h"
-
-#include <curl/mprintf.h>
-
 #include "memdebug.h"
 
 /* build request url */
@@ -60,7 +69,7 @@ int test(char *URL)
     goto test_cleanup;
   }
 
-  test_setopt(curl, CURLOPT_RTSP_CLIENT_CSEQ, 999);
+  test_setopt(curl, CURLOPT_RTSP_CLIENT_CSEQ, 999L);
   test_setopt(curl, CURLOPT_RTSP_TRANSPORT,
                     "RAW/RAW/UDP;unicast;client_port=3056-3057");
   test_setopt(curl, CURLOPT_RTSP_REQUEST, CURL_RTSPREQ_SETUP);
@@ -93,9 +102,7 @@ int test(char *URL)
   }
 
 test_cleanup:
-
-  if(stream_uri)
-    free(stream_uri);
+  free(stream_uri);
 
   curl_easy_cleanup(curl);
   curl_global_cleanup();
