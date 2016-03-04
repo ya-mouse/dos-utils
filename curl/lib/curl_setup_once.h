@@ -106,6 +106,8 @@
  * Definition of timeval struct for platforms that don't have it.
  */
 
+#include <sys/wtime.h>
+
 #ifndef HAVE_STRUCT_TIMEVAL
 struct timeval {
  long tv_sec;

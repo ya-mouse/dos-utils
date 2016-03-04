@@ -45,15 +45,12 @@
 #define HAVE_GETADDRINFO       1
 #define HAVE_GETNAMEINFO       1
 #define HAVE_GETPROTOBYNAME    1
-#define HAVE_GETTIMEOFDAY      1
 #define HAVE_IO_H              1
 #define HAVE_IOCTL             1
 #define HAVE_IOCTL_FIONBIO     1
 #define HAVE_IOCTLSOCKET       1
 #define HAVE_IOCTLSOCKET_FIONBIO   1
 #define HAVE_LIMITS_H          1
-#define HAVE_LOCALE_H          1
-#define HAVE_LONGLONG          1
 #define HAVE_MEMORY_H          1
 #define HAVE_NETDB_H           1
 #define HAVE_NETINET_IN_H      1
@@ -65,11 +62,9 @@
 #define HAVE_SELECT            1
 #define HAVE_SEND              1
 #define HAVE_SETJMP_H          1
-#define HAVE_SETLOCALE         1
 #define HAVE_SETMODE           1
 #define HAVE_SIGNAL            1
 #define HAVE_SOCKET            1
-#define HAVE_STRDUP            1
 #define HAVE_STRICMP           1
 #define HAVE_STRTOLL           1
 #define HAVE_STRUCT_TIMEVAL    1
@@ -79,7 +74,6 @@
 #define HAVE_SYS_STAT_H        1
 #define HAVE_SYS_TYPES_H       1
 #define HAVE_TIME_H            1
-#define HAVE_UNISTD_H          1
 
 #define NEED_MALLOC_H          1
 
@@ -121,6 +115,17 @@
 #define GETNAMEINFO_TYPE_ARG46 int
 #define GETNAMEINFO_TYPE_ARG7  int
 
+#define ENABLE_IPV6 1
+#define HAVE_AF_INET6 1
+#define HAVE_PF_INET6 1
+#define HAVE_FREEADDRINFO 1
+#define HAVE_GETADDRINFO 1
+#define HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1
+#define HAVE_STRUCT_ADDRINFO 1
+#define HAVE_STRUCT_IN6_ADDR 1
+#define HAVE_STRUCT_SOCKADDR_IN6 1
+#define SIZEOF_STRUCT_IN6_ADDR 16
+
 #define BSD
 
 /* CURLDEBUG definition enables memory tracking */
@@ -141,6 +146,13 @@
 
 /* to disable LDAP */
 #define CURL_DISABLE_LDAP        1
+#define CURL_DISABLE_TELNET      1
+#define CURL_DISABLE_DICT        1
+#define CURL_DISABLE_TFTP        1
+#define CURL_DISABLE_IMAP        1
+#define CURL_DISABLE_POP3        1
+#define CURL_DISABLE_SMTP        1
+#define CURL_DISABLE_RTSP        1
 
 #define in_addr_t  u_long
 
